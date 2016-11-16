@@ -2,9 +2,6 @@
 # main.py
 # this file defines the main loop of the simulator,
 # as well as the 3D rendering and visualization
-#
-# Author: Jianyu Chen
-# Copyright: 2016
 ####################
 
 #from pandac.PandaModules import loadPrcFileData
@@ -14,6 +11,7 @@ import sys
 import direct.directbase.DirectStart
 import numpy as np
 import math
+import random as rd
 
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.InputStateGlobal import inputState
@@ -63,7 +61,7 @@ class Game(DirectObject):
     self.precision=1 # length of a piece of centerLine
     self.texLength=10
     self.laneNum=4
-    self.radiu=500
+    self.radiu=500 
     road=basicFreeWay(200,self.radiu,3,self.precision,2) # generating a piece of freeway
     #road=straightCenter(np.array([0,0]),math.pi/2,2000,2)  # generating a straight way
     self.segLine=road.getLine() # the centerLine
@@ -72,6 +70,8 @@ class Game(DirectObject):
     self.leftBound=self.road.leftPoints
     segLength=len(self.segLine)
     self.lines=[]
+    self.iterNum=0
+    self.dv=0
     for j in range(0,self.laneNum):
         line=[]
         for i in range(0,segLength):
@@ -103,64 +103,72 @@ class Game(DirectObject):
     floor1.flattenStrong()'''
 
     # initial automated vehicle
-    self.initAV=[10,-6,30]
-    desiredV=40
+    self.initAV=[70,6,25]
+    desiredV=35
     surroundingVehicleNum=20
     self.agents=[]
-    self.agents.append(planningAgent(20,5,desiredV,int(math.floor((self.initAV[1]+8)/4)),surroundingVehicleNum,self.radiu)) # initial agent
+    self.agents.append(laneChangeAgent(20,5,desiredV,int(math.floor((self.initAV[1]+8)/4)),surroundingVehicleNum,self.radiu)) # initial agent
     
     # initial surrounding vehicle
-    v1=25
-    v2=25
-    v3=25
-    v4=25
+    v1=10+20*rd.random()
+    v2=10+20*rd.random()
+    v3=10+20*rd.random()
+    v4=10+20*rd.random()
+    inipos1=50
+    dis1=50
+    inipos2=70
+    dis2=50
+    inipos3=135
+    dis3=50
+    inipos4=100
+    dis4=50   
     self.initSV=[]
-    self.initSV.append([50,-6,v1])
+    self.initSV.append([inipos1,-6,v1])
     #self.agents.append(planningAgent(20,5,desiredV,int(math.floor((self.initSV[-1][1]+8)/4)),surroundingVehicleNum,self.radiu)) # initial agent
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([90,-6,v1])
+    self.initSV.append([inipos1+dis1,-6,v1])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([130,-6,v1])
+    self.initSV.append([inipos1+dis1*2,-6,v1])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([185,-6,v1])
+    self.initSV.append([inipos1+dis1*3,-6,v1])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([235,-6,v1])
-    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    
-    
-    self.initSV.append([70,-2,v2])
-    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([100,-2,v2])
-    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([160,-2,v2])
-    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([210,-2,v2])
-    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([260,-2,v2])
+    self.initSV.append([inipos1+dis1*4,-6,v1])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
     
     
-    self.initSV.append([135,2,v3])
+    self.initSV.append([inipos2,-2,v2])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([185,2,v3])
+    self.initSV.append([inipos2+dis2,-2,v2])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([220,2,v3])
+    self.initSV.append([inipos2+dis2*2,-2,v2])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([280,2,v3])
+    self.initSV.append([inipos2+dis2*3,-2,v2])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([313,2,v3])
+    self.initSV.append([inipos2+dis2*4,-2,v2])
+    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
+    
+    
+    self.initSV.append([inipos3,2,v3])
+    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
+    self.initSV.append([inipos3+dis3,2,v3])
+    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
+    self.initSV.append([inipos3+dis3*2,2,v3])
+    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
+    self.initSV.append([inipos3+dis3*3,2,v3])
+    self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
+    self.initSV.append([inipos3+dis3*4,2,v3])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
     
 
-    self.initSV.append([100,6,v4])
+    self.initSV.append([inipos4,6,v4])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([150,6,v4])
+    self.initSV.append([inipos4+dis4,6,v4])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([200,6,v4])
+    self.initSV.append([inipos4+dis4*2,6,v4])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([250,6,v4])
+    self.initSV.append([inipos4+dis4*3,6,v4])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
-    self.initSV.append([300,6,v4])
+    self.initSV.append([inipos4+dis4*4,6,v4])
     self.agents.append(laneKeepingAgent(20,20,self.initSV[-1][2],int(math.floor((self.initSV[-1][1]+8)/4)))) 
 
     # initial camera
@@ -256,11 +264,18 @@ class Game(DirectObject):
   # simulation update per step
   def update(self, task):
     dt = globalClock.getDt()
-    self.vehicles[0].controlInput(self.vehicles[0].agent.doControl())  # agent control
-    
+    if self.iterNum==6:
+	self.iterNum=0
+    if self.iterNum==0:
+    	self.dv=self.vehicles[0].agent.doControl()[0]
+    self.iterNum=self.iterNum+1
+
+    dtheta=self.vehicles[0].agent.doControl()[1]
+    self.vehicles[0].controlInput([self.dv,dtheta,0])  # agent control
+
     for i in range(len(self.initSV)):
         self.vehicles[i+1].controlInput(self.vehicles[i+1].agent.doControl()) 
-    
+
     
     #self.vehicles[0].processInput(dt,'forward','reverse','turnLeft','turnRight','brake1')  
     #self.vehicles[1].processInput(dt,'For','Back','Lef','Righ','brake2')    # manual control
@@ -339,10 +354,10 @@ class Game(DirectObject):
     self.vehicles[1].setAgent(agent1)'''
     
     #Surrounding vehicles' speed
-    v1=25
-    v2=25
-    v3=25
-    v4=25
+    v1=8
+    v2=15
+    v3=23
+    v4=35
     
     '''self.vehicles.append(basicVehicle(self,[60,-6.1,-0.6],v1))
     self.vehicles.append(basicVehicle(self,[100,-6.1,-0.6],v1))
